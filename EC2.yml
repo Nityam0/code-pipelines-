@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ec2 demo
+
+Resources:
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: port enable
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0 # Allows SSH from anywhere (consider restricting this in production)
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0 # Allows SSH from anywhere (consider restricting this in production)     
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-02b8269d5e85954ef # Replace with a valid AMI ID for your region (e.g., Amazon Linux 2 AMI)
+      InstanceType: t3.micro
+      KeyName: CLOUD # Replace with the name of your EC2 Key Pair
+      SecurityGroupIds:
+        - !GetAtt MySecurityGroup.GroupId # Reference the Security Group created above
+      Tags:
+        - Key: Name
+          Value: NITYAM-SIR

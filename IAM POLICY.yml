@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: EC2 demo with IAM Role and Policy
+
+Resources:
+
+  # -------------------------------
+  # Security Group
+  # -------------------------------
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH and HTTP access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  # -------------------------------
+  # IAM Role for EC2
+  # -------------------------------
+  MyEC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      RoleName: My-EC2-Project-Role
+
+  # -------------------------------
+  # IAM Policy for EC2 Role
+  # -------------------------------
+  MyEC2Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: MyEC2AccessPolicy
+      Roles:
+        - !Ref MyEC2Role
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:GetObject
+              - s3:PutObject
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: "*"
+
+  # -------------------------------
+  # Instance Profile
+  # -------------------------------
+  MyInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref MyEC2Role
+      Path: "/"
+
+  # -------------------------------
+  # EC2 Instance
+  # -------------------------------
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0ecb62995f68bb549      # Replace with the correct AMI for your region
+      InstanceType: t3.micro
+      KeyName: CICD                      # Replace with your EC2 key pair
+      SecurityGroupIds:
+        - !GetAtt MySecurityGroup.GroupId
+      IamInstanceProfile: !Ref MyInstanceProfile
+      Tags:
+        - Key: Name
+          Value: NITYAM-SIR-EC2

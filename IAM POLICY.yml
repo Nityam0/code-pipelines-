@@ -74,7 +74,7 @@ Resources:
   MyEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: ami-0ecb62995f68bb549      # Replace with the correct AMI for your region
+      ImageId: ami-02b8269d5e85954ef      # Replace with the correct AMI for your region
       InstanceType: t3.micro
       KeyName: CICD                      # Replace with your EC2 key pair
       SecurityGroupIds:
